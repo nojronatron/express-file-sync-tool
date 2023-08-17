@@ -1,4 +1,7 @@
+import timeStamper from './timestamper';
+
 function logger(req, res, next) {
+  console.log('logger called at', timeStamper());
   console.log('request baseUrl', req.baseUrl);
   console.log('request body', req.body);
   console.log('request hostname', req.hostname);
@@ -10,6 +13,7 @@ function logger(req, res, next) {
   console.log('request query', req.query);
   console.log('request subdomains', req.subdomains);
   console.log('header x-requested-with included?', req.xhr);
+  console.log('~~~~~~~~~~ ~~~~~~~~~~ ~~~~~~~~~~');
   next();
 }
 
