@@ -2,7 +2,8 @@ import express from 'express';
 const server = express();
 import Watcher from 'watcher';
 import 'dotenv/config';
-import logger from 'utils/logger.js';
+import httpLogger from './utils/httpLogger.js';
+import processFileData from './utils/processFileData.js';
 
 const filePath = process.env.FILE_PATH;
 const watcherOptions = {
@@ -21,7 +22,7 @@ const watcherOptions = {
 
 var watcher = new Watcher();
 const PORT = process.env.PORT || 6002;
-server.use(logger);
+server.use(httpLogger);
 
 server.get('/', (req, res, next) => {
   res.send('Server is running.');
@@ -29,7 +30,6 @@ server.get('/', (req, res, next) => {
 
 server.get('/start', (req, res, next) => {
   watcher = new Watcher(filePath, watcherOptions);
-  console.log('Called file watcher START.');
 
   watcher.on('error', (err) => {
     console.error('Error:', err);
@@ -43,6 +43,7 @@ server.get('/start', (req, res, next) => {
   watcher.on('add', (filePath) => {
     console.log('File added:', filePath);
     // todo: call function to process file
+    processFileData(filePath);
   });
   watcher.on('unlink', (filePath) => {
     console.log('File removed:', filePath);
@@ -53,8 +54,6 @@ server.get('/start', (req, res, next) => {
 });
 
 server.get('/stop', (req, res, next) => {
-  console.log('Called file watcher STOP.');
-  // call to stop file watcher
   watcher.close();
   res.send('File watcher stopped.');
 });
