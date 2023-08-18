@@ -1,14 +1,23 @@
 import express from 'express';
 const server = express();
 import Watcher from 'watcher';
+import bodyParser from 'body-parser';
 
-import start from './routes/start.js';
 import httpLogger from './utils/httpLogger.js';
+import start from './routes/start.js';
 
 import 'dotenv/config';
 
 var watcher = new Watcher();
 const PORT = process.env.PORT || 6002;
+
+const bpOptions = {
+  inflate: true,
+  limit: '100kb',
+  strict: true,
+  type: 'application/json',
+};
+const jsonParser = bodyParser.json(bpOptions);
 server.use(httpLogger);
 
 server.get('/', (req, res, next) => {
@@ -25,7 +34,8 @@ server.get('/stop', (req, res, next) => {
   res.send('File watcher stopped.');
 });
 
-server.post('/upload', (req, res, next) => {
+server.post('/upload', jsonParser, (req, res, next) => {
+  console.log('req.body', req.body);
   res.send('ok');
 });
 
