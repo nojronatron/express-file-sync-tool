@@ -1,24 +1,11 @@
 import express from 'express';
 const server = express();
 import Watcher from 'watcher';
-import 'dotenv/config';
-import httpLogger from './utils/httpLogger.js';
-import processFileData from './utils/processFileData.js';
 
-const filePath = process.env.FILE_PATH;
-const watcherOptions = {
-  debounce: 300,
-  depth: 1,
-  limit: 10,
-  ignoreInitial: false,
-  native: true,
-  persistent: true,
-  pollingInterval: 3000,
-  pollingTimeout: 20000,
-  recursive: false,
-  renameDetection: false,
-  renameTimeout: 1250,
-};
+import start from './routes/start.js';
+import httpLogger from './utils/httpLogger.js';
+
+import 'dotenv/config';
 
 var watcher = new Watcher();
 const PORT = process.env.PORT || 6002;
@@ -29,33 +16,17 @@ server.get('/', (req, res, next) => {
 });
 
 server.get('/start', (req, res, next) => {
-  watcher = new Watcher(filePath, watcherOptions);
-
-  watcher.on('error', (err) => {
-    console.error('Error:', err);
-  });
-  watcher.on('ready', () => {
-    console.log('File watcher ready.');
-  });
-  watcher.on('close', () => {
-    console.log('File watcher closed.');
-  });
-  watcher.on('add', (filePath) => {
-    console.log('File added:', filePath);
-    // todo: call function to process file
-    processFileData(filePath);
-  });
-  watcher.on('unlink', (filePath) => {
-    console.log('File removed:', filePath);
-    // todo: determine what to do when a file is removed (or renamed)
-  });
-
+  start(watcher);
   res.send('File watcher started.');
 });
 
 server.get('/stop', (req, res, next) => {
   watcher.close();
   res.send('File watcher stopped.');
+});
+
+server.post('/upload', (req, res, next) => {
+  res.send('ok');
 });
 
 server.use((err, req, res, next) => {
