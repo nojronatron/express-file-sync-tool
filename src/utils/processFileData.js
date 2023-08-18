@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import processLogger from './processLogger.js';
+import uploadToServer from '../routes/uploadToServer.js';
 import 'dotenv/config';
 
 async function processFileData(filePath) {
@@ -28,23 +29,41 @@ async function processFileData(filePath) {
         processLogger('data match result', result);
       }
 
-      const outputFile = path.join(
-        process.env.BIB_DATA_PATH,
-        'raw_bib_data.txt'
-      );
-      processLogger('outputFile path', outputFile);
+      const role = process.env.ROLE;
 
-      // iterate through result array and write each string element to a file using fs
-      result.forEach((element) => {
-        fs.appendFile(outputFile, element + '\n', (err) => {
-          if (err) {
-            console.error('Error writing to file:', err);
-            nextTick(err);
-          } else {
-            processLogger(element, 'successfully written to file');
-          }
+      if (role == 'database') {
+        // database server role detected, write data to file
+        // todo: write elements to SQL database
+        processLogger('Role detected:', 'database');
+        const outputFile = path.join(
+          process.env.BIB_DATA_LOG_PATH,
+          process.env.BIB_DATA_LOG_FILENAME
+        );
+        processLogger('outputFile path', outputFile);
+        // iterate through result array and write each string element to a file using fs
+        result.forEach((element) => {
+          fs.appendFile(outputFile, element + '\n', (err) => {
+            if (err) {
+              console.error('Error writing to file:', err);
+              nextTick(err);
+            } else {
+              processLogger(element, 'successfully written to file');
+            }
+          });
         });
-      });
+      }
+
+      if (role == 'winlink') {
+        // winlink client role detected, send data to server
+        processLogger('Role detected:', 'winlink');
+        if (result === undefined || Array.isArray(result) === false) {
+          processLogger('data is undefined.', '');
+          return;
+        } else {
+          processLogger('data is defined, sending to server:', result);
+          uploadToServer(result);
+        }
+      }
     }
   });
 }
