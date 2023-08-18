@@ -6,9 +6,9 @@ export default function processLogger(arg1, arg2) {
   console.log(
     'processLogger called at',
     timeStamp,
-    'arg1:',
+    'with the following data:',
     arg1,
-    'arg2:',
+    ',',
     arg2
   );
   console.log('~~~~~~~~~~\n');
