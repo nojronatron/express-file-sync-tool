@@ -15,6 +15,7 @@
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "express": "^4.17.1",
+    "mongodb": "^5.7.0",
     "watcher": "^2.3.0"
   },
   "devDependencies": {
